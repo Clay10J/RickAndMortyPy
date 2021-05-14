@@ -60,11 +60,11 @@ if __name__ == '__main__':
     #              name: str
     #              status: str (alive, dead or unknown)
     #              species: str
-    #              type: str
+    #              -type: str
     #              gender (female, male, genderless or unknown)
     # Location ->  id: int
     #              name: str
-    #              type: str
+    #              -type: str
     #              dimension: str
     # Episode ->   id: int
     #              name: str
