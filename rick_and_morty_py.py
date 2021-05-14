@@ -60,7 +60,7 @@ if __name__ == '__main__':
     #              episode: str
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(title="subcommands", description="valid subcommands", dest="category",
-                                       help="category to search")
+                                       required=True, help="category to search")
     # "character" command parser
     parserCharacter = subparsers.add_parser("character", help="searches character category. add -h or --help for "
                                                               "further information")
@@ -71,11 +71,11 @@ if __name__ == '__main__':
                                                                            "in search if -id,--id flag is present")
     parserCharacterFilters.add_argument("-n", "--name", type=str, help="name to search")
     parserCharacterFilters.add_argument("-st", "--status", type=str, choices=["alive", "dead", "unknown"],
-                                 help="status to search")
+                                        help="status to search")
     parserCharacterFilters.add_argument("-sp", "--species", type=str, help="species to search")
     parserCharacterFilters.add_argument("-t", "--type", type=str, help="type to search")
     parserCharacterFilters.add_argument("-g", "--gender", type=str, choices=["female", "male", "genderless", "unknown"],
-                                 help="gender to search")
+                                        help="gender to search")
 
     # "location" command parser
     parserLocation = subparsers.add_parser("location", help="searches location category. add -h or --help for further "
