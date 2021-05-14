@@ -1,13 +1,14 @@
 import argparse
+import math
 import requests
 
 
 def build_url(newArgs):
     category = newArgs['category'].lower()
-    addons = f"/{category}"
+    addons = f"/{category}/"
     if newArgs['id'] is not None:
         for idx in range(len(newArgs['id'])):
-            addons += ("/" if idx == 0 else ",") + f"{newArgs['id'][idx]}"
+            addons += ("" if idx == 0 else ",") + f"{newArgs['id'][idx]}"
     else:
         newArgs.pop('category')
         newArgs.pop('id')
@@ -16,12 +17,21 @@ def build_url(newArgs):
             if value is None:
                 continue
             addons += ("?" if not isQueryStarted else "&") + f"{query}={value}"
+            isQueryStarted = True
+
+    if addons == f"/{category}/":
+        addons += "?page=1"
 
     return API_BASE_URL + addons
 
 
 def print_formatted_data(json):
-    json = json['results'] if type(json) is dict else json
+    if type(json) is dict:
+        if 'results' in json.keys():
+            json = json['results']
+        else:
+            json = [json]
+
     for obj in json:
         for key, value in obj.items():
             if type(value) is list or key == "url":
@@ -37,11 +47,12 @@ def get_data(args):
     return response.json()
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     MAX_CHARACTER_ID = 671
     MAX_LOCATION_ID = 108
     MAX_EPISODE_ID = 41
+    ITEMS_PER_PAGE = 20
+    MAX_PAGE_NUMBER = math.ceil(MAX_CHARACTER_ID / ITEMS_PER_PAGE)
 
     API_BASE_URL = "https://rickandmortyapi.com/api"
 
@@ -66,9 +77,12 @@ if __name__ == '__main__':
                                                               "further information")
     parserCharacter.add_argument("-id", "--id", nargs="+", type=int, choices=range(1, MAX_CHARACTER_ID + 1),
                                  help="id number to search. can be single value or space-separated list. must be in "
-                                      "range 1 to 671", metavar='')
+                                      f"range 1 to {MAX_CHARACTER_ID}", metavar='')
     parserCharacterFilters = parserCharacter.add_argument_group("filters", "also optional arguments. will not be used "
                                                                            "in search if -id,--id flag is present")
+    parserCharacterFilters.add_argument("-p", "--page", type=int, choices=range(1, MAX_PAGE_NUMBER + 1),
+                                        help=f"page number to search. must be in range 1 to {MAX_PAGE_NUMBER}",
+                                        metavar='')
     parserCharacterFilters.add_argument("-n", "--name", type=str, help="name to search")
     parserCharacterFilters.add_argument("-st", "--status", type=str, choices=["alive", "dead", "unknown"],
                                         help="status to search")
@@ -82,9 +96,12 @@ if __name__ == '__main__':
                                                             "information")
     parserLocation.add_argument("-id", "--id", nargs="+", type=int, choices=range(1, MAX_LOCATION_ID + 1),
                                 help="id number to search. can be single value or space-separated list. must be in "
-                                     "range 1 to 108", metavar='')
+                                     f"range 1 to {MAX_LOCATION_ID}", metavar='')
     parserLocationFilters = parserLocation.add_argument_group("filters", "also optional arguments. will not be used "
                                                                          "in search if -id,--id flag is present")
+    parserLocationFilters.add_argument("-p", "--page", type=int, choices=range(1, MAX_PAGE_NUMBER + 1),
+                                       help=f"page number to search. must be in range 1 to {MAX_PAGE_NUMBER}",
+                                       metavar='')
     parserLocationFilters.add_argument("-n", "--name", type=str, help="name to search")
     parserLocationFilters.add_argument("-t", "--type", type=str, help="type to search")
     parserLocationFilters.add_argument("-d", "--dimension", type=str, help="dimension to search")
@@ -94,9 +111,12 @@ if __name__ == '__main__':
                                                           "information")
     parserEpisode.add_argument("-id", "--id", nargs="+", type=int, choices=range(1, MAX_EPISODE_ID + 1),
                                help="id number to search. can be single value or space-separated list. must be in "
-                                    "range 1 to 41", metavar='')
+                                    f"range 1 to {MAX_EPISODE_ID}", metavar='')
     parserEpisodeFilters = parserEpisode.add_argument_group("filters", "also optional arguments. will not be used in "
                                                                        "search if -id,--id flag is present")
+    parserEpisodeFilters.add_argument("-p", "--page", type=int, choices=range(1, MAX_PAGE_NUMBER + 1),
+                                      help=f"page number to search. must be in range 1 to {MAX_PAGE_NUMBER}",
+                                      metavar='')
     parserEpisodeFilters.add_argument("-n", "--name", type=str, help="name to search")
     parserEpisodeFilters.add_argument("-e", "--episode", type=str, help="episode to search")
 
